@@ -6,6 +6,10 @@ pipeline {
     timeout(time: 10, unit: 'MINUTES')   // Adding timeout to terminate long-running jobs
     buildDiscarder(logRotator(numToKeepStr: '20')) // keeping 20 latest builds 
   }
+
+  triggers {
+    pollSCM('H/5 * * * *') // polls the scm every 5 minutes
+  }
   
   environment {
     REGISTRY = 'registry:5000'           // local docker registry with port
