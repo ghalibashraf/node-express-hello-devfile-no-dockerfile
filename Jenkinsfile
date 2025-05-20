@@ -5,6 +5,11 @@ pipeline {
         timestamps()          // timestamper plugin
     }
 
+    environment {
+      REGISTRY = 'http://registry:5000'           // local docker registry
+      IMAGE = "${REGISTRY}/node-hello-app:latest" // image to push
+    }
+
     stages {
         stage('Clone the Repository') {
             steps {
@@ -18,12 +23,20 @@ pipeline {
       steps {
         // build image and tag it 'latest' in our local registry
         // NEED TO REMOVE THESE AND INSERT VARIABLES HERE ONCE I CONFIRM THIS WORKS
-        echo 'Building and tagging docker image.'
-        sh 'docker build -t registry:5000/node-hello-app:latest .'
-        // push that image
-        // NEED TO REMOVE THESE AND INSERT VARIABLES HERE ONCE I CONFIRM THIS WORKS
-        echo 'Pushing image to local registry.'
-        sh 'docker push registry:5000/node-hello-app:latest'
+        echo 'Building and tagging docker image: $IMAGE.'
+        script {    // script syntax needed for defining and assigning variable
+        def img = docker.build(IMAGE)
+
+        echo 'Pushing image $IMAGE to local registry.'
+        // using withRegistry() docker plugin method
+        docker.withRegistry(REGISTRY){
+          img.push()    // push built image
+        }
+
+        }
+        // Not using the following commands anymore since plugin has better methods (above)
+        // sh 'docker build -t registry:5000/node-hello-app:latest .'
+        // sh 'docker push registry:5000/node-hello-app:latest'
       }
     }
 
@@ -33,7 +46,7 @@ pipeline {
         // run the image
         // NEED TO REMOVE THESE AND INSERT VARIABLES HERE ONCE I CONFIRM THIS WORKS
         echo 'Running docker image from local registry.'
-        sh 'docker run -d --name ci-test -p 8080:8080 registry:5000/node-hello-app:latest'
+        sh 'docker run -d --name ci-test -p 8080:8080 $REGISTRY/node-hello-app:latest'
         // wait for it to start
         // SHOULD THIS SLEEP TIME ALSO BE AN ENVIRONMENT VARIABLE?
         echo 'Waiting for it to start.'
