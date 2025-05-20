@@ -1,5 +1,5 @@
 pipeline {
-  gent any                 // runs on any available agent
+  agent any                 // runs on any available agent
 
   options {
     timestamps()          // timestamper plugin
