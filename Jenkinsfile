@@ -27,7 +27,7 @@ pipeline {
         script {    // script syntax needed for defining and assigning variable
         def img = docker.build(IMAGE)
 
-        echo 'Pushing image $IMAGE to local registry.'
+        echo "Pushing image ${IMAGE} to local registry."
         // using withRegistry() docker plugin method
         docker.withRegistry("http:/${REGISTRY}"){
           img.push()    // push built image
