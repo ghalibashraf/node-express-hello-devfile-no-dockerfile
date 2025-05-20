@@ -3,15 +3,17 @@ pipeline {
 
   options {
     timestamps()            // adds timestamps to the console output
-
     timeout(time: 10, unit: 'MINUTES')   // Adding timeout to terminate long-running jobs
-
     buildDiscarder(logRotator(numToKeepStr: '20')) // keeping 20 latest builds 
   }
   
   environment {
     REGISTRY = 'registry:5000'           // local docker registry with port
     IMAGE = 'node-hello-app'             // image to push
+    JENKINS_DOCKER_ALIAS = 'docker'      // the alias set for jenkins-docker container
+    CONTAINER_PORT    = '8080'        // container port the hello app is listening in
+    HOST_PORT         = '8080'        // host port mapped to the container port
+    TEST_CONTAINER    = 'ci-test'     // name for the test hello app container
   }
   
   stages {
@@ -47,13 +49,10 @@ pipeline {
       }
     }
 
-    stage('Verify') {
+    stage('Tests') {
       steps {
-        echo 'Starting test.'
-        // run the image
-        // NEED TO REMOVE THESE AND INSERT VARIABLES HERE ONCE I CONFIRM THIS WORKS
         echo 'Running docker image from local registry.'
-        sh "docker run -d --name ci-test -p 8080:8080 ${FULL_IMAGE}"
+        sh "docker run -d --name ${TEST_CONTAINER} -p ${HOST_PORT}:${CONTAINER_PORT} ${FULL_IMAGE}"
         // wait for it to start
         // SHOULD THIS SLEEP TIME ALSO BE AN ENVIRONMENT VARIABLE?
         echo 'Waiting for it to start.'
@@ -61,7 +60,7 @@ pipeline {
         // test response for hello endpoint
         // NEED TO REMOVE THESE AND INSERT VARIABLES HERE ONCE I CONFIRM THIS WORKS
         echo 'Hitting the hello endpoint.'
-        sh 'curl -f http://docker:8080/hello'
+        sh "curl -f http://${JENKINS_DOCKER_ALIAS}:${HOST_PORT}/hello"
       }
     }
   }
@@ -71,7 +70,7 @@ pipeline {
       // always doing a cleanup of the image
       // adding an or true to ensure exit code 0
       echo 'Cleaning test docker image.'
-      sh 'docker rm -f ci-test || true'
+      sh "docker rm -f ${TEST_CONTAINER} || true"
     }
   }
 }
