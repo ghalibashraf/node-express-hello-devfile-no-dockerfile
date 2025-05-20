@@ -63,8 +63,14 @@ pipeline {
         echo 'Waiting for it to start.'
         sh "sleep ${WAIT_TIME}"
         // test response for hello endpoint
-        echo 'Hitting the hello endpoint.'
-        sh "curl -f http://${JENKINS_DOCKER_ALIAS}:${HOST_PORT}/hello"
+        echo 'Hitting the hello endpoint multiple times to verify counter increments.'
+        script {
+          for(int i = 1; i <= 5; i++){
+            echo "Request ${i}"
+            sh "curl -f http://${JENKINS_DOCKER_ALIAS}:${HOST_PORT}/hello"
+            sleep 1
+          }
+        }
       }
     }
   }
