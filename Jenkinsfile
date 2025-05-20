@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-      REGISTRY = 'http://registry:5000'           // local docker registry
+      REGISTRY = 'registry:5000'           // local docker registry  
       IMAGE = "${REGISTRY}/node-hello-app:latest" // image to push
     }
 
@@ -23,13 +23,13 @@ pipeline {
       steps {
         // build image and tag it 'latest' in our local registry
         // NEED TO REMOVE THESE AND INSERT VARIABLES HERE ONCE I CONFIRM THIS WORKS
-        echo 'Building and tagging docker image: $IMAGE.'
+        echo "Building and tagging docker image: ${IMAGE}."
         script {    // script syntax needed for defining and assigning variable
         def img = docker.build(IMAGE)
 
         echo 'Pushing image $IMAGE to local registry.'
         // using withRegistry() docker plugin method
-        docker.withRegistry(REGISTRY){
+        docker.withRegistry("http:/${REGISTRY}"){
           img.push()    // push built image
         }
 
@@ -46,14 +46,14 @@ pipeline {
         // run the image
         // NEED TO REMOVE THESE AND INSERT VARIABLES HERE ONCE I CONFIRM THIS WORKS
         echo 'Running docker image from local registry.'
-        sh 'docker run -d --name ci-test -p 8080:8080 $REGISTRY/node-hello-app:latest'
+        sh "docker run -d --name ci-test -p 8080:8080 ${IMAGE}"
         // wait for it to start
         // SHOULD THIS SLEEP TIME ALSO BE AN ENVIRONMENT VARIABLE?
         echo 'Waiting for it to start.'
         sh 'sleep 5'
         // test response for hello endpoint
         // NEED TO REMOVE THESE AND INSERT VARIABLES HERE ONCE I CONFIRM THIS WORKS
-        echp 'Hitting the hello endpoint.'
+        echo 'Hitting the hello endpoint.'
         sh 'curl -f http://docker:8080/hello'
       }
     }
