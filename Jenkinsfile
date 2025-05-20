@@ -15,9 +15,10 @@ pipeline {
     REGISTRY = 'registry:5000'           // local docker registry with port
     IMAGE = 'node-hello-app'             // image to push
     JENKINS_DOCKER_ALIAS = 'docker'      // the alias set for jenkins-docker container
-    CONTAINER_PORT    = '8080'        // container port the hello app is listening in
-    HOST_PORT         = '8080'        // host port mapped to the container port
-    TEST_CONTAINER    = 'ci-test'     // name for the test hello app container
+    CONTAINER_PORT = '8080'              // container port the hello app is listening in
+    HOST_PORT = '8080'                   // host port mapped to the container port
+    TEST_CONTAINER = 'ci-test'           // name for the test hello app container
+    WAIT_TIME = 5                        // wait time for app container to start in seconds
   }
   
   stages {
@@ -60,7 +61,7 @@ pipeline {
         // wait for it to start
         // SHOULD THIS SLEEP TIME ALSO BE AN ENVIRONMENT VARIABLE?
         echo 'Waiting for it to start.'
-        sh 'sleep 5'
+        sh "sleep ${WAIT_TIME}"
         // test response for hello endpoint
         echo 'Hitting the hello endpoint.'
         sh "curl -f http://${JENKINS_DOCKER_ALIAS}:${HOST_PORT}/hello"
