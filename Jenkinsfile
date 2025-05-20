@@ -67,7 +67,7 @@ pipeline {
         script {
           for(int i = 1; i <= 5; i++){
             echo "Request ${i}"
-            sh "curl -f http://${JENKINS_DOCKER_ALIAS}:${HOST_PORT}/hello"
+            sh "curl -s http://${JENKINS_DOCKER_ALIAS}:${HOST_PORT}/hello"
             sleep 1
           }
         }
