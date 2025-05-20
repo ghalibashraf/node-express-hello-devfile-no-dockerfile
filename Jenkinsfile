@@ -13,10 +13,10 @@ pipeline {
       steps {
         // build image and tag it 'latest' in our local registry
         // NEED TO REMOVE THESE AND INSERT VARIABLES HERE ONCE I CONFIRM THIS WORKS
-        sh 'docker build -t localhost:5000/node-hello-app:latest .'
+        sh 'docker build -t registry:5000/node-hello-app:latest .'
         // push that image
         // NEED TO REMOVE THESE AND INSERT VARIABLES HERE ONCE I CONFIRM THIS WORKS
-        sh 'docker push localhost:5000/node-hello-app:latest'
+        sh 'docker push registry:5000/node-hello-app:latest'
       }
     }
 
@@ -24,13 +24,13 @@ pipeline {
       steps {
         // run the image
         // NEED TO REMOVE THESE AND INSERT VARIABLES HERE ONCE I CONFIRM THIS WORKS
-        sh 'docker run -d --name ci-test -p 8080:8080 localhost:5000/node-hello-app:latest'
+        sh 'docker run -d --name ci-test -p 8080:8080 registry:5000/node-hello-app:latest'
         // wait for it to start
         // SHOULD THIS SLEEP TIME ALSO BE AN ENVIRONMENT VARIABLE?
         sh 'sleep 5'
         // test response for hello endpoint
         // NEED TO REMOVE THESE AND INSERT VARIABLES HERE ONCE I CONFIRM THIS WORKS
-        sh 'curl -f http://localhost:8080/hello'
+        sh 'curl -f http://docker:8080/hello'
       }
     }
   }
