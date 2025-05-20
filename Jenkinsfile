@@ -2,7 +2,11 @@ pipeline {
   agent any                 // runs on any available agent
 
   options {
-    timestamps()          // timestamper plugin
+    timestamps()            // adds timestamps to the console output
+
+    timeout(time: 10, unit: 'MINUTES')   // Adding timeout to terminate long-running jobs
+
+    buildDiscarder(logRotator(numToKeepStr: '20')) // keeping 20 latest builds 
   }
   
   environment {
