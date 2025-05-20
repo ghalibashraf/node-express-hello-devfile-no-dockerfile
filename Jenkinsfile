@@ -25,14 +25,14 @@ pipeline {
         // NEED TO REMOVE THESE AND INSERT VARIABLES HERE ONCE I CONFIRM THIS WORKS
         echo "Building and tagging docker image: ${IMAGE}."
         script {    // script syntax needed for defining and assigning variable
-        def img = docker.build(IMAGE)
+          def img = docker.build(IMAGE)
 
-        echo "Pushing image ${IMAGE} to local registry."
-        // using withRegistry() docker plugin method
-        docker.withRegistry("http:/${REGISTRY}"){
+          echo "Pushing image ${IMAGE} to local registry."
+          // using withRegistry() docker plugin method
+          
+          docker.withRegistry("http://${REGISTRY}"){
           img.push()    // push built image
-        }
-
+          }
         }
         // Not using the following commands anymore since plugin has better methods (above)
         // sh 'docker build -t registry:5000/node-hello-app:latest .'
