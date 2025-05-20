@@ -1,42 +1,45 @@
 pipeline {
-    agent any                 // runs on any available agent
+  gent any                 // runs on any available agent
 
-    options {
-        timestamps()          // timestamper plugin
+  options {
+    timestamps()          // timestamper plugin
+  }
+  
+  environment {
+    REGISTRY = 'registry:5000'           // local docker registry with port
+    IMAGE = 'node-hello-app'             // image to push
+  }
+  
+  stages {
+    stage('Clone the Repository') {
+      steps {
+        // this works because Jenkinsfile is in the same repo
+        echo 'Checking out source code.'
+        checkout scm
+      }
     }
 
-    environment {
-      REGISTRY = 'registry:5000'           // local docker registry  
-      IMAGE = "${REGISTRY}/node-hello-app:latest" // image to push
-    }
-
-    stages {
-        stage('Clone the Repository') {
-            steps {
-            // this works because Jenkinsfile is in the same repo
-            echo 'Checking out source code.'
-            checkout scm
+    stage('Determine Tag') {
+      steps {
+        script {
+          VERSION = "${env.BUILD_NUMBER}" // To keep all version numbers unique
+          FULL_IMAGE = "${REGISTRY}/${IMAGE}:${VERSION}"
+          echo "Image tag: ${FULL_IMAGE}"
         }
+      }
     }
-
+    
     stage('Build, Tag & Push') {
       steps {
-        // build image and tag it 'latest' in our local registry
-        // NEED TO REMOVE THESE AND INSERT VARIABLES HERE ONCE I CONFIRM THIS WORKS
-        echo "Building and tagging docker image: ${IMAGE}."
-        script {    // script syntax needed for defining and assigning variable
-          def img = docker.build(IMAGE)
+        script {
+          echo "Building and tagging ${FULL_IMAGE}"
+          def img = docker.build(FULL_IMAGE)
 
-          echo "Pushing image ${IMAGE} to local registry."
-          // using withRegistry() docker plugin method
-          
+          echo "Pushing ${FULL_IMAGE} to local registry."
           docker.withRegistry("http://${REGISTRY}"){
-          img.push()    // push built image
+            img.push() 
           }
         }
-        // Not using the following commands anymore since plugin has better methods (above)
-        // sh 'docker build -t registry:5000/node-hello-app:latest .'
-        // sh 'docker push registry:5000/node-hello-app:latest'
       }
     }
 
@@ -46,7 +49,7 @@ pipeline {
         // run the image
         // NEED TO REMOVE THESE AND INSERT VARIABLES HERE ONCE I CONFIRM THIS WORKS
         echo 'Running docker image from local registry.'
-        sh "docker run -d --name ci-test -p 8080:8080 ${IMAGE}"
+        sh "docker run -d --name ci-test -p 8080:8080 ${FULL_IMAGE}"
         // wait for it to start
         // SHOULD THIS SLEEP TIME ALSO BE AN ENVIRONMENT VARIABLE?
         echo 'Waiting for it to start.'
