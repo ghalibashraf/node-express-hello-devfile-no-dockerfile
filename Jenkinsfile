@@ -62,7 +62,6 @@ pipeline {
         echo 'Waiting for it to start.'
         sh 'sleep 5'
         // test response for hello endpoint
-        // NEED TO REMOVE THESE AND INSERT VARIABLES HERE ONCE I CONFIRM THIS WORKS
         echo 'Hitting the hello endpoint.'
         sh "curl -f http://${JENKINS_DOCKER_ALIAS}:${HOST_PORT}/hello"
       }
