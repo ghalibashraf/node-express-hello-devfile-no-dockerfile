@@ -27,16 +27,18 @@ pipeline {
     stage('Pre-check') {
       steps {
         echo "Verifying ${DIND_CONTAINER} container is connected to the ${BRIDGE_NETWORK} docker network."
-        def network = sh(
+        script {
+          def network = sh(
           script: "docker network inspect ${DIND_NETWORK} --format '{{range .Containers}}{{.Name}} {{end}}'",
           returnStdout: true
           ).trim()
-        if (!network.contains(BRIDGE_NETWORK)) {
-          error "${DIND_CONTAINER} is not connected to the ${BRIDGE_NETWORK} network."
-        } else {
-          echo "${DIND_CONTAINER} is connected to the ${BRIDGE_NETWORK} network."
+          if (!network.contains(BRIDGE_NETWORK)) {
+            error "${DIND_CONTAINER} is not connected to the ${BRIDGE_NETWORK} network."
+          } else {
+            echo "${DIND_CONTAINER} is connected to the ${BRIDGE_NETWORK} network."
+          }
         }
-
+        
         echo 'Verifying DIND container is running.'
         script {
           def container = sh(
@@ -51,7 +53,7 @@ pipeline {
         }
       }
     }
-    
+
     stage('Clone the Repository') {
       steps {
         // this works because Jenkinsfile is in the same repo
