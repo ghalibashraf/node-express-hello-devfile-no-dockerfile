@@ -29,8 +29,8 @@ pipeline {
                 echo 'Checking Docker-in-Docker container...'
                 script {
                     try {
-                        sh "docker inspect ${DIND_CONTAINER}"
-                        echo "✅ ${DIND_CONTAINER} is present and Docker daemon is reachable."
+                        sh "docker version"
+                        echo "Docker-in-Docker is up and running."
                     } catch (e) {
                         error "Could not reach Docker-in-Docker container! Ensure '${DIND_CONTAINER}' is running and attached to network '${BRIDGE_NETWORK}'."
                     }
