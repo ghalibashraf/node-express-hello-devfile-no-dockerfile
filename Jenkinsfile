@@ -15,7 +15,7 @@ pipeline {
         DIND_CONTAINER        = 'jenkins-docker'
         BRIDGE_NETWORK        = 'jenkins'
         REGISTRY              = 'registry:5000'
-        IMAGE                 = 'node-hello-app'
+        IMAGE                 = 'node-hello-app-2'
         JENKINS_DOCKER_ALIAS  = 'docker'
         CONTAINER_PORT        = '8080'
         HOST_PORT             = '8080'
