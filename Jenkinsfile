@@ -12,6 +12,8 @@ pipeline {
   }
   
   environment {
+    DIND_CONTAINER = 'jenkins-docker'
+    BRIDGE_NETWORK = 'jenkins'
     REGISTRY = 'registry:5000'           // local docker registry with port
     IMAGE = 'node-hello-app'             // image to push
     JENKINS_DOCKER_ALIAS = 'docker'      // the alias set for jenkins-docker container
@@ -22,6 +24,33 @@ pipeline {
   }
   
   stages {
+    stage('Pre-check') {
+      steps {
+        echo 'Verifying DIND container is running.'
+        script {
+          def container = sh(
+            script: "docker ps --filter name=${DIND_CONTAINER} --format '{{.Names}}'", 
+            returnStdout: true
+            ).trim()
+          if (!container) {
+            error "${DIND_CONTAINER} CONTAINER NOT FOUND. PLEASE MAKE SURE IT IS RUNNING AND CONNECTED TO ${BRIDGE_NETWORK} DOCKER NETWORK."
+          } else {
+            echo "${DIND_CONTAINER} container found!"
+
+            echo "Verifying ${DIND_CONTAINER} container is connected to the ${BRIDGE_NETWORK} docker network."
+            def network = sh(
+              script: "docker network inspect ${DIND_NETWORK} --format '{{range .Containers}}{{.Name}} {{end}}'",
+              returnStdout: true
+              ).trim()
+            if (!network.contains(BRIDGE_NETWORK)) {
+              error "${DIND_CONTAINER} is not connected to the ${BRIDGE_NETWORK} network."
+            } else {
+              echo "${DIND_CONTAINER} is connected to the ${BRIDGE_NETWORK} network."
+            }
+          }
+        }
+      }
+    }
     stage('Clone the Repository') {
       steps {
         // this works because Jenkinsfile is in the same repo
