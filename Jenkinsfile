@@ -29,7 +29,7 @@ pipeline {
         echo "Verifying ${DIND_CONTAINER} container is connected to the ${BRIDGE_NETWORK} docker network."
         script {
           def network = sh(
-          script: "docker network inspect ${DIND_NETWORK} --format '{{range .Containers}}{{.Name}} {{end}}'",
+          script: "docker network inspect ${BRIDGE_NETWORK} --format '{{range .Containers}}{{.Name}} {{end}}'",
           returnStdout: true
           ).trim()
           if (!network.contains(BRIDGE_NETWORK)) {
