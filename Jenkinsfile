@@ -107,7 +107,7 @@ pipeline {
 
             script {
                 def containerExists = sh(script: "docker ps -a -q -f name=${TEST_CONTAINER}", returnStdout: true).trim()
-                if containerExists {
+                if (containerExists) {
                     echo "Removing container ${TEST_CONTAINER}."
                     sh "docker rm -f ${TEST_CONTAINER}"
                 }
