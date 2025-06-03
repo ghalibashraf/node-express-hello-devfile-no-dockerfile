@@ -124,4 +124,5 @@ The `Jenkinsfile` uses a Declarative pipeline:
 - **Permission denied on Docker socket**: switched to DIND approach to isolate and avoided host socket binds.
 - **Orphaned test containers**: added `post { always { rm -f ci-test } }` to clean up reliably.
 - **Version tagging**: moved from `:latest` to `${BUILD_NUMBER}` for unique, immutable tags.
+- **Port environment variable was not defined in Dockerfile**: This meant that any port exposed (other than 8080) in the Dockerfile did not work. Added the Port as an environment variable and exposed the port variable. Now the port can be set to other port numbers.
 
