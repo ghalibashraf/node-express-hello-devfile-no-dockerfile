@@ -1,6 +1,9 @@
 # Create from base node image (18 is LTS)
 FROM node:18
 
+# Set environment variables
+ENV PORT=8080
+
 # Working directory inside the container
 WORKDIR /app
 
@@ -13,8 +16,8 @@ RUN npm install
 # Copy the rest of your application code into the container
 COPY . .
 
-# Expose port 8080 (used in app.js)
-EXPOSE 8080
+# Expose port
+EXPOSE ${PORT}
 
 # 7. Command to run the start script
 CMD ["npm", "start"]
