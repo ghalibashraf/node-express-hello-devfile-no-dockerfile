@@ -7,6 +7,20 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '20'))
     }
 
+    parameters {
+        string(
+            name: 'HOST_PORT', 
+            defaultValue: '8080', 
+            description: 'Port on host to expose the app'
+        )
+        string(
+            name: 'CONTAINER_PORT', 
+            defaultValue: '8080', 
+            description: 'Port inside container used by the app'
+        )
+    }
+
+
     triggers {
         pollSCM('H/5 * * * *')
     }
@@ -15,10 +29,10 @@ pipeline {
         DIND_CONTAINER        = 'jenkins-docker'
         BRIDGE_NETWORK        = 'jenkins'
         REGISTRY              = 'registry:5000'
-        IMAGE                 = 'node-hello-app-2'
+        IMAGE                 = 'node-hello-app'
         JENKINS_DOCKER_ALIAS  = 'docker'
-        CONTAINER_PORT        = '8080'
-        HOST_PORT             = '8080'
+        CONTAINER_PORT        = ${params.CONTAINER_PORT}"
+        HOST_PORT             = "${params.HOST_PORT}"
         TEST_CONTAINER        = 'ci-test'
         WAIT_TIME             = '5'
     }
