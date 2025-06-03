@@ -97,7 +97,7 @@ pipeline {
                         echo 'Hitting the /hello endpoint multiple times to verify counter increments.'
                         for (int i = 1; i <= 5; i++) {
                             echo "Request ${i}"
-                            sh "curl -s http://${JENKINS_DOCKER_ALIAS}:${CONTAINER_PORT}/hello"
+                            sh "curl -s http://${JENKINS_DOCKER_ALIAS}:${HOST_PORT}/hello"
                             sleep 1
                         }
                     } catch (e) {
