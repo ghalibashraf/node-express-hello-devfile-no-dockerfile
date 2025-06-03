@@ -31,7 +31,7 @@ pipeline {
         REGISTRY              = 'registry:5000'
         IMAGE                 = 'node-hello-app'
         JENKINS_DOCKER_ALIAS  = 'docker'
-        CONTAINER_PORT        = ${params.CONTAINER_PORT}"
+        CONTAINER_PORT        = "${params.CONTAINER_PORT}"
         HOST_PORT             = "${params.HOST_PORT}"
         TEST_CONTAINER        = 'ci-test'
         WAIT_TIME             = '5'
