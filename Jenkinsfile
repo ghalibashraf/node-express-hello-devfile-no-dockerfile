@@ -32,7 +32,7 @@ pipeline {
                         sh "docker version"
                         echo "Docker-in-Docker is up and running."
                     } catch (e) {
-                        error "Could not reach Docker-in-Docker container! Ensure '${DIND_CONTAINER}' is running and attached to network '${BRIDGE_NETWORK}'."
+                        error "Error: ${e.getMessage()}. Could not reach Docker-in-Docker container! Ensure '${DIND_CONTAINER}' is running and attached to network '${BRIDGE_NETWORK}'."
                     }
                 }
             }
@@ -58,11 +58,15 @@ pipeline {
         stage('Build, Tag & Push') {
             steps {
                 script {
-                    echo "Building and tagging ${FULL_IMAGE}"
-                    def img = docker.build(FULL_IMAGE)
-                    echo "Pushing ${FULL_IMAGE} to local registry."
-                    docker.withRegistry("http://${REGISTRY}", '') {
-                        img.push()
+                    try {
+                        echo "Building and tagging ${FULL_IMAGE}"
+                        def img = docker.build(FULL_IMAGE)
+                        echo "Pushing ${FULL_IMAGE} to local registry."
+                        docker.withRegistry("http://${REGISTRY}", '') {
+                            img.push()
+                        }
+                    } catch (e) {
+                        error "Error: ${e.getMessage()}."
                     }
                 }
             }
@@ -70,16 +74,20 @@ pipeline {
 
         stage('Tests') {
             steps {
-                echo 'Running docker image from local registry.'
-                sh "docker run -d --name ${TEST_CONTAINER} -p ${HOST_PORT}:${CONTAINER_PORT} ${FULL_IMAGE}"
-                echo 'Waiting for the container to start.'
-                sh "sleep ${WAIT_TIME}"
-                echo 'Hitting the /hello endpoint multiple times to verify counter increments.'
                 script {
-                    for (int i = 1; i <= 5; i++) {
-                        echo "Request ${i}"
-                        sh "curl -s http://${JENKINS_DOCKER_ALIAS}:${CONTAINER_PORT}/hello"
-                        sleep 1
+                    try {
+                        echo 'Running docker image from local registry.'
+                        sh "docker run -d --name ${TEST_CONTAINER} -p ${HOST_PORT}:${CONTAINER_PORT} ${FULL_IMAGE}"
+                        echo 'Waiting for the container to start.'
+                        sh "sleep ${WAIT_TIME}"
+                        echo 'Hitting the /hello endpoint multiple times to verify counter increments.'
+                        for (int i = 1; i <= 5; i++) {
+                            echo "Request ${i}"
+                            sh "curl -s http://${JENKINS_DOCKER_ALIAS}:${CONTAINER_PORT}/hello"
+                            sleep 1
+                        }
+                    } catch (e) {
+                        error "Error: ${e.getMessage()}."
                     }
                 }
             }
