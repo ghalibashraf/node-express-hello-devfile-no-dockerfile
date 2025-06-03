@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Expose port 8080 (used in app.js)
-EXPOSE 8088
+EXPOSE 8080
 
 # 7. Command to run the start script
 CMD ["npm", "start"]
