@@ -19,5 +19,5 @@ COPY . .
 # Expose port
 EXPOSE ${PORT}
 
-# 7. Command to run the start script
-CMD ["npm", "start"]
+# 7. Command to run the start script - including setting the port
+CMD ["sh", "-c", "PORT=${PORT} npm start"]

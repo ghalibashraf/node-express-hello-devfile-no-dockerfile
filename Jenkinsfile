@@ -91,7 +91,7 @@ pipeline {
                 script {
                     try {
                         echo 'Running docker image from local registry.'
-                        sh "docker run -d --name ${TEST_CONTAINER} -p ${HOST_PORT}:${CONTAINER_PORT} ${FULL_IMAGE}"
+                        sh "docker run -d --name ${TEST_CONTAINER} -e ${CONTAINER_PORT} -p ${HOST_PORT}:${CONTAINER_PORT} ${FULL_IMAGE}"
                         echo 'Waiting for the container to start.'
                         sh "sleep ${WAIT_TIME}"
                         echo 'Hitting the /hello endpoint multiple times to verify counter increments.'
