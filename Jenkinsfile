@@ -18,6 +18,21 @@ pipeline {
             defaultValue: '8080', 
             description: 'Port inside container used by the app'
         )
+        string(
+            name: 'IMAGE_NAME', 
+            defaultValue: 'node-hello-app', 
+            description: 'Base name for Docker image'
+        )
+        string(
+            name: 'TEST_CONTAINER', 
+            defaultValue: 'ci-test', 
+            description: 'Name of the test container'
+        )
+        string(
+            name: 'WAIT_TIME', 
+            defaultValue: '5', 
+            description: 'Seconds to wait before testing'
+        )
     }
 
 
@@ -29,12 +44,12 @@ pipeline {
         DIND_CONTAINER        = 'jenkins-docker'
         BRIDGE_NETWORK        = 'jenkins'
         REGISTRY              = 'registry:5000'
-        IMAGE                 = 'node-hello-app'
+        IMAGE                 = "${params.IMAGE_NAME}"
         JENKINS_DOCKER_ALIAS  = 'docker'
         CONTAINER_PORT        = "${params.CONTAINER_PORT}"
         HOST_PORT             = "${params.HOST_PORT}"
-        TEST_CONTAINER        = 'ci-test'
-        WAIT_TIME             = '5'
+        TEST_CONTAINER        = "${params.TEST_CONTAINER}"
+        WAIT_TIME             = "${params.WAIT_TIME}"
     }
 
     stages {
