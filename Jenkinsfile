@@ -87,9 +87,26 @@ pipeline {
     }
 
     post {
-        always {
-            echo 'Cleaning up test container.'
-            sh "docker rm -f ${TEST_CONTAINER} || true"
+        success {
+            echo 'Pipeline completed successfully.'
+        }
+
+        failure {
+            echo 'Pipeline failed.'
+        }
+        cleanup {
+            echo 'Starting post cleanup...'
+
+            script {
+                def containerExists = sh(script: "docker ps -a -q -f name=${TEST_CONTAINER}", returnStdout: true).trim()
+                if containerExists {
+                    echo "Removing container ${TEST_CONTAINER}."
+                    sh "docker rm -f ${TEST_CONTAINER}"
+                }
+                else {
+                    echo "${TEST_CONTAINER} not found."
+                }
+            }
         }
     }
 }
