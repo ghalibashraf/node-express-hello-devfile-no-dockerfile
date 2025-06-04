@@ -71,13 +71,14 @@ Expected response:
 ## Dockerfile for Hello App
 
 Application Dockerfile (located at project root) performs:
-1. **Base Image**: `node:16-alpine`
+1. **Base Image**: `node:18`
+2. **Environment variable**: `PORT=8080`
 2. **Working Directory**: `/app` 
 3. **Copy Dependencies**: `COPY package*.json ./`
 4. **Install**: `RUN npm install`
 5. **Copy Rest of the Code**: `COPY . .`
 6. **Expose PORT**: `EXPOSE 8080`
-7. **Command**: `CMD ["npm", "start"]`
+7. **Command to run and define PORT**: `CMD ["sh", "-c", "PORT=${PORT} npm start"]`
 
 Build & tag locally:
 
@@ -94,7 +95,7 @@ docker push registry:5000/node-hello-app:1.0.0
 Run & verify:
 
 ```
-docker run -d -p 8080:8080 --rm registry:5000/node-hello-app:1.0.0
+docker run -d -e PORT=8080 -p 8080:8080 --rm registry:5000/node-hello-app:1.0.0
 curl http://localhost:8080/hello
 ```
 
@@ -115,13 +116,15 @@ The `Jenkinsfile` uses a Declarative pipeline:
     4. **Build, Tag & Push**: uses Docker Pipeline plugin to `docker.build` and `withRegistry(...).push()`
     5. **Tests**: spins up `ci-test` container, waits `${WAIT_TIME}`, and hits `/hello` 5 times to verify the counter
 - **Post**:
-    - Always clean up the test container (`docker rm -f ${TEST_CONTAINER}`)
+    - Clean up the test container if it exists (`docker rm -f ${TEST_CONTAINER}`)
+    - Success/failure message
 
 ## Issues Faced & Resolutions
 
 - **HTTP vs HTTPS on registry**: configured `--insecure-registry` in DIND and used `docker.withRegistry("http://${REGISTRY}")` to avoid HTTPS errors.
 - **DNS lookup failures**: ensured both Jenkins and registry/DIND are on the `jenkins` network with aliases (`docker`, `registry`).
-- **Permission denied on Docker socket**: switched to DIND approach to isolate and avoided host socket binds.
-- **Orphaned test containers**: added `post { always { rm -f ci-test } }` to clean up reliably.
+- **DIND daemon not persistent**: DIND daemon shutdown when VM turned off. Added to the start command to always restart.
+- **Remaining test containers**: added post to clean up reliably.
 - **Version tagging**: moved from `:latest` to `${BUILD_NUMBER}` for unique, immutable tags.
+- **Port environment variable was not defined in Dockerfile**: This meant that any port exposed (other than 8080) in the Dockerfile did not work. Added the Port as an environment variable and exposed the port variable. Now the port can be set to other port numbers.
 
